@@ -8,4 +8,4 @@ dataReader = DataReaderTemplate(
     "files/datasets/receitas/receitas2020.csv",
     2020
 )
-data2020 = dataReader.initialization()
+dataCounties2020, dataStates2020 = dataReader.initialization()
