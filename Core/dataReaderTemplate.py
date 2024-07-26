@@ -1,13 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from Core.generate import Generate
-
-from Core.Graphic.Implements.graphics import GraphicsImpl
-
-from Core.Report.Implements.reportCounties import ReportCounties
-from Core.Report.Implements.reportStates import ReportStates
-
 from Core.reportStatesAdapter import StatesAdapter
 from Core.reportCountiesAdapter import ReportCountiesAdapter
 
@@ -48,7 +41,6 @@ class DataReaderTemplate:
     def sumForStates(
         self, dataExpense: pd.DataFrame, dataBudget: pd.DataFrame
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        generate = Generate()
         onlyPaidExpense = dataExpense[dataExpense["Coluna"] == "Despesas Pagas"]
 
         onlyPaidExpenseAndTotal = onlyPaidExpense[
@@ -70,21 +62,6 @@ class DataReaderTemplate:
             statesExpense.append(uf)
             sumListExpense.append(soma)
 
-        # Criar gráficos de gastos
-        dataExpenses = {"Estados": statesExpense, "Gastos": sumListExpense}
-
-        dfExpenses = pd.DataFrame(dataExpenses)
-        dfExpenses = dfExpenses.sort_values(by="Gastos", ascending=False)
-
-        graphicsExpense = GraphicsImpl(
-            dfExpenses["Estados"].to_numpy(),
-            dfExpenses["Gastos"].to_numpy(),
-            "Despesas Pagas por Estado",
-            "Estados",
-            "Total de Despesas Pagas",
-        )
-        generate.generateGraphic(graphicsExpense)
-
         onlyPaidBudget = dataBudget[
             dataBudget["Coluna"] == "Receitas Brutas Realizadas"
         ]
@@ -92,8 +69,6 @@ class DataReaderTemplate:
         onlyPaidBudgetAndTotal = onlyPaidBudget[
             onlyPaidBudget["Conta"].str.contains(pat="TOTAL DAS RECEITAS")
         ]
-
-        uniqueEstados = pd.unique(dataBudget["UF"])
 
         sumListBudget = []
         statesBudget = []
@@ -108,30 +83,14 @@ class DataReaderTemplate:
             statesBudget.append(uf)
             sumListBudget.append(soma)
 
-        # Criar gráficos de gastos
-        dataBudget = {"Estados": statesBudget, "Arrecadacao": sumListBudget}
-
-        dfBudget = pd.DataFrame(dataBudget)
-        dfBudget = dfBudget.sort_values(by="Arrecadacao", ascending=False)
-
-        graphicsBudget = GraphicsImpl(
-            dfBudget["Estados"].to_numpy(),
-            dfBudget["Arrecadacao"].to_numpy(),
-            "Arrecadação por Estado",
-            "Estados",
-            "Total de Arrecadações",
-        )
-        generate.generateGraphic(graphicsBudget)
-
         ######## Saldo das contas do estado ########
         resultStates = []
         cont = 0
-
         while len(sumListBudget) > cont:
             resultStates.append(sumListBudget[cont] - sumListExpense[cont])
             cont += 1
 
-        # Criar gráficos de gastos
+        # Criar gráficos e relatorios de estados
         dataBalance = {
             "Estados": statesBudget,
             "Saldo": resultStates,
@@ -142,9 +101,8 @@ class DataReaderTemplate:
         dfBalance = pd.DataFrame(dataBalance)
         dfBalance = dfBalance.sort_values(by="Saldo", ascending=False)
 
-        ### Adapter ###
         statesAdapter = StatesAdapter(dfBalance)
-        statesAdapter.adapterToReport()
+        statesAdapter.adapterToStates()
 
         # ### Filtrando prefeituras que não estão presentes em ambos os relatorios
         onlyPaidBudgetAndTotalFiltered, onlyPaidExpenseAndTotalFiltered = (
@@ -164,7 +122,7 @@ class DataReaderTemplate:
 
         return dfBCountie, dfBalance
 
-    def removeMissingCities(self, receitas, despesas) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def removeMissingCities(self, receitas: pd.DataFrame, despesas: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         ids_comuns = pd.merge(
             receitas[["Instituição"]],
             despesas[["Instituição"]],

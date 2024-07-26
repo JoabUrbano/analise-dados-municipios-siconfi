@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from Core.generate import Generate
-
 from Core.Report.Implements.reportCounties import ReportCounties
 
 class ReportCountiesAdapter:
@@ -11,8 +9,6 @@ class ReportCountiesAdapter:
         self.year = year
 
     def adapterToReport(self):
-        generate = Generate()
-        
         reportCounties = ReportCounties(
             self.dataset["Municipios"].to_numpy(),
             self.dataset["Arrecadacao"].to_numpy(),
@@ -21,4 +17,4 @@ class ReportCountiesAdapter:
             self.year
         )
 
-        generate.generateReport(reportCounties)
+        reportCounties.createReport()

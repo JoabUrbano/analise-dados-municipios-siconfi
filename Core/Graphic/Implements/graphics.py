@@ -18,7 +18,7 @@ class GraphicsImpl(GraphicsInterface):
         self.values = values
         self.title = title
         self.name = name
-        self.description = description + " em milhares de reais"
+        self.description = description
     
     def createGraphics(self) -> None:
         fig, ax = plt.subplots(figsize=(12, 6))
