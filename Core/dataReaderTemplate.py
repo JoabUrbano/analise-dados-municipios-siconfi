@@ -39,7 +39,9 @@ class DataReaderTemplate:
         return self.sumForStates(dataExpense, dataBudget)
 
     def sumForStates(
-        self, dataExpense: pd.DataFrame, dataBudget: pd.DataFrame
+        self,
+        dataExpense: pd.DataFrame,
+        dataBudget: pd.DataFrame
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
         onlyPaidExpense = dataExpense[dataExpense["Coluna"] == "Despesas Pagas"]
 
@@ -98,15 +100,20 @@ class DataReaderTemplate:
             "Gastos": sumListExpense,
         }
 
-        dfBalance = pd.DataFrame(dataBalance)
-        dfBalance = dfBalance.sort_values(by="Saldo", ascending=False)
+        dfStatesBalance = pd.DataFrame(dataBalance)
+        dfStatesBalance = dfStatesBalance.sort_values(by="Saldo", ascending=False)
 
-        statesAdapter = StatesAdapter(dfBalance)
+        statesAdapter = StatesAdapter(dfStatesBalance)
         statesAdapter.adapterToStates()
 
-        # ### Filtrando prefeituras que não estão presentes em ambos os relatorios
+        dfCountiesBalance = self.calculateCounties(onlyPaidBudgetAndTotal, onlyPaidExpenseAndTotal)
+
+        return dfStatesBalance,  dfCountiesBalance
+
+    def calculateCounties(self, validBudget: pd.DataFrame, validExpense: pd.DataFrame) -> pd.DataFrame:
+        ### Filtrando prefeituras que não estão presentes em ambos os relatorios
         onlyPaidBudgetAndTotalFiltered, onlyPaidExpenseAndTotalFiltered = (
-            self.removeMissingCities(onlyPaidBudgetAndTotal, onlyPaidExpenseAndTotal)
+            self.removeMissingCities(validBudget, validExpense)
         )
 
         resultBalance = []
@@ -140,7 +147,7 @@ class DataReaderTemplate:
         )
         reportCountiesAdapter.adapterToReport()
 
-        return dfBCountie, dfBalance
+        return dfBCountie
 
     def removeMissingCities(self, receitas: pd.DataFrame, despesas: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         ids_comuns = pd.merge(

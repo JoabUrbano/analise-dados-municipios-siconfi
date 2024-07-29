@@ -46,15 +46,4 @@ class ReportStates(ReportInterface):
         
         finally:
             file.close()
-
-    
-    def determinar_quartil(self, valor: float, q1: float, q2: float, q3: float) -> str:
-        if valor <= q1:
-            return 'Entre os 25% piores'
-        elif valor <= q2:
-            return 'Entre os 25 e os 50%'
-        elif valor <= q3:
-            return 'Entre os 50 e os 75%'
-        else:
-            return 'Entre os 25% melhores'
         
