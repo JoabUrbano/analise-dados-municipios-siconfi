@@ -108,7 +108,7 @@ class DataReaderTemplate:
 
         dfCountiesBalance = self.calculateCounties(onlyPaidBudgetAndTotal, onlyPaidExpenseAndTotal)
 
-        return dfStatesBalance,  dfCountiesBalance
+        return dfCountiesBalance, dfStatesBalance
 
     def calculateCounties(self, validBudget: pd.DataFrame, validExpense: pd.DataFrame) -> pd.DataFrame:
         ### Filtrando prefeituras que não estão presentes em ambos os relatorios

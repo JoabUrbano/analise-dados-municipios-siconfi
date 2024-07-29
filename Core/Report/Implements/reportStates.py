@@ -41,9 +41,6 @@ class ReportStates(ReportInterface):
         except Exception as erro:
             print('Erro: ', erro)
         
-        else:
-            print('Relatorio dos estados gerado com sucesso!')
-        
         finally:
             file.close()
         

@@ -62,8 +62,8 @@ class ReportCounties(ReportInterface):
         except Exception as erro:
             print('Erro: ', erro)
         
-        else:
-            print('Relatório dos municípios gerado com sucesso!')
+        finally:
+            file.close()
 
     
     def determinar_quartil(self, valor: float, q1: float, q2: float, q3: float) -> str:
