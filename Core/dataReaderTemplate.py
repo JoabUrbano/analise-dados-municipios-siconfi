@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from Core.reportStatesAdapter import StatesAdapter
+from Core.statesAdapter import StatesAdapter
 from Core.reportCountiesAdapter import ReportCountiesAdapter
 
 from typing import Tuple
@@ -109,11 +109,21 @@ class DataReaderTemplate:
             self.removeMissingCities(onlyPaidBudgetAndTotal, onlyPaidExpenseAndTotal)
         )
 
+        resultBalance = []
+        budgetCounties = onlyPaidBudgetAndTotalFiltered["Valor"].to_numpy()
+        expenseCountis = onlyPaidExpenseAndTotalFiltered["Valor"].to_numpy()
+
+        for b, e in zip(budgetCounties, expenseCountis):
+            resultBalance.append(float(b.replace(",", ".")) - float(e.replace(",", ".")))
+
+
+
         dataCountie = {
             "Municipios": onlyPaidExpenseAndTotalFiltered["Instituição"].to_numpy(),
-            "Arrecadacao": onlyPaidBudgetAndTotalFiltered["Valor"].to_numpy(),
-            "Gastos": onlyPaidExpenseAndTotalFiltered["Valor"].to_numpy(),
+            "Arrecadacao": budgetCounties,
+            "Gastos": expenseCountis,
             "Populacao": onlyPaidBudgetAndTotalFiltered["População"].to_numpy(),
+            "Saldo": resultBalance
         }
 
         dfBCountie = pd.DataFrame(dataCountie)
