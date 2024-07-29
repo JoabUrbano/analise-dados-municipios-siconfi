@@ -116,8 +116,6 @@ class DataReaderTemplate:
         for b, e in zip(budgetCounties, expenseCountis):
             resultBalance.append(float(b.replace(",", ".")) - float(e.replace(",", ".")))
 
-
-
         dataCountie = {
             "Municipios": onlyPaidExpenseAndTotalFiltered["Instituição"].to_numpy(),
             "Arrecadacao": budgetCounties,
@@ -127,7 +125,19 @@ class DataReaderTemplate:
         }
 
         dfBCountie = pd.DataFrame(dataCountie)
-        reportCountiesAdapter = ReportCountiesAdapter(dfBCountie, self.year)
+        dfBCountie = dfBCountie.sort_values(by="Saldo", ascending=False)
+
+        quartil_100to75 = dfBCountie['Saldo'].quantile(0.75)
+        quartil_75to50 = dfBCountie['Saldo'].quantile(0.50)
+        quartil_50to25 = dfBCountie['Saldo'].quantile(0.25)
+
+        reportCountiesAdapter = ReportCountiesAdapter(
+            dfBCountie,
+            self.year,
+            quartil_100to75,
+            quartil_75to50,
+            quartil_50to25
+        )
         reportCountiesAdapter.adapterToReport()
 
         return dfBCountie, dfBalance

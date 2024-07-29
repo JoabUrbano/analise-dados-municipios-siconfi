@@ -46,16 +46,7 @@ class ReportStates(ReportInterface):
         
         finally:
             file.close()
-    
-    def calculateBalance(self, budget: List[str], expense: List[str]) -> List[float]:
-        cont = 0
-        result = []
-        
-        while len(budget) > cont:
-            result.append(float(budget[cont].replace(",", ".")) - float(expense[cont].replace(",", ".")))
-            cont += 1
-        
-        return result
+
     
     def determinar_quartil(self, valor: float, q1: float, q2: float, q3: float) -> str:
         if valor <= q1:
