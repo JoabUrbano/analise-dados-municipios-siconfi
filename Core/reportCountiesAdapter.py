@@ -25,6 +25,7 @@ class ReportCountiesAdapter:
             self.dataset["Gastos"].to_numpy(),
             self.dataset["Populacao"].to_numpy(),
             self.dataset["Saldo"].to_numpy(),
+            self.dataset["Auxilio Uniao"].to_numpy(),
             self.year,
             self.quartil_100to75,
             self.quartil_75to50,

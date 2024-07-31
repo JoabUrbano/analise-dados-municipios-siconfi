@@ -71,6 +71,16 @@ class DataReaderTemplate:
         onlyPaidBudgetAndTotal = onlyPaidBudget[
             onlyPaidBudget["Conta"].str.contains(pat="TOTAL DAS RECEITAS")
         ]
+        
+        aidBudget = onlyPaidBudget[
+            onlyPaidBudget["Conta"].str.contains(pat="Transferências Correntes")
+        ]
+        
+        # Removendo duplicatas na coluna Instituição
+        onlyPaidBudgetAndTotal = onlyPaidBudgetAndTotal.drop_duplicates(subset='Instituição')
+        aidBudget = aidBudget.drop_duplicates(subset='Instituição')
+
+        onlyPaidBudgetAndTotal['Auxilio Uniao'] = aidBudget["Valor"].to_numpy()
 
         sumListBudget = []
         statesBudget = []
@@ -116,19 +126,31 @@ class DataReaderTemplate:
             self.removeMissingCities(validBudget, validExpense)
         )
 
-        resultBalance = []
-        budgetCounties = onlyPaidBudgetAndTotalFiltered["Valor"].to_numpy()
-        expenseCountis = onlyPaidExpenseAndTotalFiltered["Valor"].to_numpy()
+        budgetCounties = onlyPaidBudgetAndTotalFiltered["Valor"].str.replace(',', '.').to_numpy()
+        budgetCountiesFloat = budgetCounties.astype(float)
 
-        for b, e in zip(budgetCounties, expenseCountis):
-            resultBalance.append(float(b.replace(",", ".")) - float(e.replace(",", ".")))
+        expenseCounties = onlyPaidExpenseAndTotalFiltered["Valor"].str.replace(',', '.').to_numpy()
+        expenseCountiesFloat = expenseCounties.astype(float)
+
+        aidCounties = onlyPaidBudgetAndTotalFiltered['Auxilio Uniao'].str.replace(',', '.').to_numpy()
+        aidCountiesFloat = aidCounties.astype(float)
+
+        resultBalance = []
+        for budget, expense in zip(budgetCountiesFloat, expenseCountiesFloat):
+            resultBalance.append(budget - expense)
+        
+        resultBalanceWithoutAid = []
+        for balance, aid in zip(resultBalance, aidCountiesFloat):
+            resultBalanceWithoutAid.append(balance - aid)
 
         dataCountie = {
             "Municipios": onlyPaidExpenseAndTotalFiltered["Instituição"].to_numpy(),
-            "Arrecadacao": budgetCounties,
-            "Gastos": expenseCountis,
+            "Arrecadacao": budgetCountiesFloat,
+            "Gastos": expenseCountiesFloat,
             "Populacao": onlyPaidBudgetAndTotalFiltered["População"].to_numpy(),
-            "Saldo": resultBalance
+            "Saldo": resultBalance,
+            "Auxilio Uniao": aidCountiesFloat,
+            "Salde sem auxilio": resultBalanceWithoutAid
         }
 
         dfBCountie = pd.DataFrame(dataCountie)
