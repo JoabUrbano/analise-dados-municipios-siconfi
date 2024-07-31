@@ -150,7 +150,7 @@ class DataReaderTemplate:
             "Populacao": onlyPaidBudgetAndTotalFiltered["População"].to_numpy(),
             "Saldo": resultBalance,
             "Auxilio Uniao": aidCountiesFloat,
-            "Salde sem auxilio": resultBalanceWithoutAid
+            "Saldo sem auxilio": resultBalanceWithoutAid
         }
 
         dfBCountie = pd.DataFrame(dataCountie)
